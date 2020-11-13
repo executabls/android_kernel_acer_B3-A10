@@ -1,0 +1,38 @@
+
+language: c
+#######################################################################################
+os:
+  - linux
+  
+addons:
+  apt:
+    packages:
+      - curl
+
+#######################################################################################
+
+
+before_install:
+
+  - sudo apt-get update -qq
+  
+  - git clone https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-eabi-4.8 ~/arm-eabi-4.8/
+  
+  - sudo chmod -R a+x *
+
+#######################################################################################
+
+
+script:  
+  - export ARCH=arm
+  - export ARCH_MTK_PLATFORM=mt6592
+  - export CROSS_COMPILE=~/arm-eabi-4.8/bin/arm-eabi-
+  - export KBUILD_BUILD_USER="root"
+  - export KBUILD_BUILD_HOST="exec"
+  - mkdir out
+  - make O=out hq8392_tb_b2e_l1_defconfig
+  - make O=out -j2
+
+after_success:
+  - curl --upload-file out/arch/arm/boot/zImage https://keep.sh/zImage
+  
